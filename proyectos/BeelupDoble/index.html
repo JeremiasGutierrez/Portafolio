@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Beelup - Split Screen Cam 1 / Cam 2</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #0a0a0a;
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #eee;
+    min-height: 100vh;
+  }
+  header {
+    padding: 14px 20px;
+    background: #151515;
+    border-bottom: 1px solid #2a2a2a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  header h1 {
+    font-size: 16px;
+    margin: 0;
+    font-weight: 600;
+    color: #f5a623;
+  }
+  .controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  button {
+    background: #2a2a2a;
+    color: #eee;
+    border: 1px solid #3a3a3a;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  button:hover { background: #3a3a3a; }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: #000;
+  }
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .cam-wrap {
+    position: relative;
+    background: #000;
+    aspect-ratio: 16/9;
+  }
+  .cam-label {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(0,0,0,0.6);
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 2;
+    letter-spacing: 0.5px;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #000;
+  }
+  .status {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    font-size: 11px;
+    color: #999;
+    background: rgba(0,0,0,0.5);
+    padding: 2px 8px;
+    border-radius: 4px;
+    z-index: 2;
+  }
+  .timeline-bar {
+    padding: 12px 20px;
+    background: #151515;
+    border-top: 1px solid #2a2a2a;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .timeline-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .timeline-row input[type=range] {
+    flex: 1;
+    accent-color: #f5a623;
+    height: 6px;
+    cursor: pointer;
+  }
+  .controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .time-label {
+    font-size: 12px;
+    color: #ccc;
+    font-variant-numeric: tabular-nums;
+    min-width: 46px;
+    text-align: center;
+  }
+  .seek-btn {
+    background: #2a2a2a;
+    color: #eee;
+    border: 1px solid #3a3a3a;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+  }
+  .seek-btn:hover { background: #3a3a3a; }
+  .option-btn {
+    background: #1e1e1e;
+    color: #ccc;
+    border: 1px solid #3a3a3a;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .option-btn:hover { background: #2a2a2a; }
+  .option-btn.active {
+    background: #f5a623;
+    color: #111;
+    border-color: #f5a623;
+    font-weight: 600;
+  }
+  .option-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .option-group .group-label {
+    font-size: 11px;
+    color: #888;
+    margin-right: 4px;
+  }
+  .marks-panel {
+    padding: 12px 20px 18px;
+    background: #111;
+    border-top: 1px solid #2a2a2a;
+  }
+  .marks-panel h3 {
+    font-size: 13px;
+    margin: 0 0 8px;
+    color: #f5a623;
+    font-weight: 600;
+  }
+  .marks-toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .marks-toolbar textarea {
+    width: 100%;
+    min-height: 70px;
+    background: #1a1a1a;
+    color: #eee;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 12px;
+    font-family: monospace;
+    display: none;
+  }
+  .marks-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .mark-chip {
+    background: #1e1e1e;
+    border: 1px solid #3a3a3a;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: #eee;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mark-chip:hover {
+    background: #f5a623;
+    color: #111;
+    border-color: #f5a623;
+  }
+  .mark-chip .mark-time {
+    opacity: 0.7;
+    font-variant-numeric: tabular-nums;
+  }
+  .timeline-track {
+    position: relative;
+  }
+  .mark-dot {
+    position: absolute;
+    top: -2px;
+    width: 3px;
+    height: 10px;
+    background: #f5a623;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Beelup · Cancha 1 · Cam 1 + Cam 2 (Split Screen)</h1>
+  <div class="controls">
+    <button id="syncBtn">Sincronizar tiempos</button>
+    <button id="playAllBtn">▶ Play ambas</button>
+    <button id="pauseAllBtn">⏸ Pausa ambas</button>
+    <button id="muteBtn">🔊 Unmute Cam 2</button>
+  </div>
+</header>
+
+<div style="padding:14px 20px; background:#111; border-bottom:1px solid #2a2a2a; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+  <input id="urlInput" type="text" placeholder="Pegá acá la URL del partido (player.php?id=...) o solo el ID"
+    style="flex:1; min-width:260px; padding:8px 12px; border-radius:6px; border:1px solid #3a3a3a; background:#1a1a1a; color:#eee; font-size:13px;">
+  <button id="loadBtn" style="background:#f5a623; color:#111; font-weight:600;">Cargar partido</button>
+  <span id="loadMsg" style="font-size:12px; color:#999;"></span>
+</div>
+
+<div class="grid">
+  <div class="cam-wrap">
+    <div class="cam-label">CAM 1 (izq)</div>
+    <div class="status" id="status1">cargando…</div>
+    <video id="video1" controls playsinline></video>
+  </div>
+  <div class="cam-wrap">
+    <div class="cam-label">CAM 2 (der)</div>
+    <div class="status" id="status2">cargando…</div>
+    <video id="video2" controls playsinline muted></video>
+  </div>
+</div>
+
+<div class="timeline-bar">
+  <div class="timeline-row">
+    <span class="time-label" id="curTime">00:00</span>
+    <div class="timeline-track" id="timelineTrack" style="flex:1;">
+      <input type="range" id="timeline" min="0" max="100" step="0.1" value="0" style="width:100%;">
+    </div>
+    <span class="time-label" id="durTime">00:00</span>
+  </div>
+  <div class="option-group" id="speedGroup">
+    <span class="group-label">Velocidad:</span>
+    <button class="option-btn" data-speed="0.5">x0.5</button>
+    <button class="option-btn active" data-speed="1">x1</button>
+    <button class="option-btn" data-speed="2">x2</button>
+    <button class="option-btn" data-speed="3">x3</button>
+    <button class="option-btn" data-speed="6">x6</button>
+  </div>
+  <div class="option-group" id="seekGroup">
+    <span class="group-label">Salto:</span>
+    <button class="option-btn" data-seek="5">±5</button>
+    <button class="option-btn active" data-seek="10">±10</button>
+  </div>
+  <div class="controls-row">
+    <button class="seek-btn" id="backBtn" title="Retroceder">◀</button>
+    <button class="seek-btn" id="playPauseBtn" title="Play/Pausa ambas cámaras">⏸</button>
+    <button class="seek-btn" id="fwdBtn" title="Avanzar">▶</button>
+  </div>
+</div>
+
+<div class="marks-panel">
+  <h3>Highlights del partido</h3>
+  <div class="marks-toolbar">
+    <button class="seek-btn" id="loadMarksBtn" style="font-size:12px;">🔄 Cargar highlights</button>
+    <button class="seek-btn" id="pasteMarksBtn" style="font-size:12px;">📋 Pegar JSON manualmente</button>
+    <span id="marksMsg" style="font-size:12px; color:#999;"></span>
+  </div>
+  <textarea id="marksTextarea" placeholder='Pegá acá el JSON de la respuesta de obtener.marcas.video.v5.php'></textarea>
+  <div class="marks-list" id="marksList"></div>
+</div>
+
+<script>
+let hls1 = null;
+let hls2 = null;
+
+function buildSrc(id, camara) {
+  return `https://beelup.com/obtener.video.playlist.php?id=${id}&camara=${camara}&tipo=todo&formato=m3u8&desde=&duracion=`;
+}
+
+function extractId(input) {
+  const trimmed = input.trim();
+  // Si viene como URL, buscamos el parámetro id=
+  const match = trimmed.match(/[?&]id=(\d+)/);
+  if (match) return match[1];
+  // Si el usuario pegó directamente el número
+  if (/^\d+$/.test(trimmed)) return trimmed;
+  return null;
+}
+
+function loadStream(video, src, statusEl) {
+  if (Hls.isSupported()) {
+    const hls = new Hls();
+    hls.loadSource(src);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      statusEl.textContent = "listo";
+    });
+    hls.on(Hls.Events.ERROR, (event, data) => {
+      if (data.fatal) {
+        statusEl.textContent = "error: " + data.details;
+      }
+    });
+    return hls;
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    // Safari soporta HLS nativo
+    video.src = src;
+    video.addEventListener('loadedmetadata', () => statusEl.textContent = "listo");
+    return null;
+  } else {
+    statusEl.textContent = "HLS no soportado en este navegador";
+    return null;
+  }
+}
+
+const video1 = document.getElementById('video1');
+const video2 = document.getElementById('video2');
+const status1 = document.getElementById('status1');
+const status2 = document.getElementById('status2');
+const urlInput = document.getElementById('urlInput');
+const loadBtn = document.getElementById('loadBtn');
+const loadMsg = document.getElementById('loadMsg');
+let currentMatchId = null;
+const marksList = document.getElementById('marksList');
+const marksMsg = document.getElementById('marksMsg');
+const marksTextarea = document.getElementById('marksTextarea');
+const timelineTrack = document.getElementById('timelineTrack');
+
+function loadMatch(id) {
+  if (hls1) { hls1.destroy(); hls1 = null; }
+  if (hls2) { hls2.destroy(); hls2 = null; }
+  video1.pause(); video2.pause();
+  video1.removeAttribute('src'); video2.removeAttribute('src');
+  status1.textContent = 'cargando…';
+  status2.textContent = 'cargando…';
+  hls1 = loadStream(video1, buildSrc(id, 'izq'), status1);
+  hls2 = loadStream(video2, buildSrc(id, 'der'), status2);
+  loadMsg.textContent = `Partido ${id} cargado.`;
+  currentMatchId = id;
+  marksList.innerHTML = '';
+  clearMarkDots();
+}
+
+loadBtn.onclick = () => {
+  const id = extractId(urlInput.value);
+  if (!id) {
+    loadMsg.textContent = 'No pude encontrar un ID válido en eso que pegaste.';
+    return;
+  }
+  loadMatch(id);
+};
+
+urlInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') loadBtn.click();
+});
+
+// Carga automática del último partido usado como ejemplo
+urlInput.value = 'https://beelup.com/player.php?id=33448035';
+loadMatch('33448035');
+
+document.getElementById('playAllBtn').onclick = () => {
+  video1.play();
+  video2.play();
+};
+document.getElementById('pauseAllBtn').onclick = () => {
+  video1.pause();
+  video2.pause();
+};
+document.getElementById('syncBtn').onclick = () => {
+  // Sincroniza el tiempo de cam2 al tiempo de cam1
+  video2.currentTime = video1.currentTime;
+};
+function updateMuteBtn() {
+  muteBtn.textContent = video2.muted ? "🔇 Unmute Cam 2" : "🔊 Mute Cam 2";
+}
+const muteBtn = document.getElementById('muteBtn');
+muteBtn.onclick = () => {
+  video2.muted = !video2.muted;
+  updateMuteBtn();
+};
+updateMuteBtn();
+
+// ---- Barra de tiempo compartida ----
+const timeline = document.getElementById('timeline');
+const curTime = document.getElementById('curTime');
+const durTime = document.getElementById('durTime');
+const backBtn = document.getElementById('backBtn');
+const fwdBtn = document.getElementById('fwdBtn');
+
+function fmt(sec) {
+  if (!isFinite(sec) || sec < 0) sec = 0;
+  const m = Math.floor(sec / 60).toString().padStart(2, '0');
+  const s = Math.floor(sec % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+// Usamos video1 como "reloj maestro" para la barra
+video1.addEventListener('loadedmetadata', () => {
+  timeline.max = video1.duration || 100;
+  durTime.textContent = fmt(video1.duration);
+});
+
+video1.addEventListener('timeupdate', () => {
+  if (!isSeeking) {
+    timeline.value = video1.currentTime;
+    curTime.textContent = fmt(video1.currentTime);
+  }
+});
+
+let isSeeking = false;
+timeline.addEventListener('input', () => {
+  isSeeking = true;
+  curTime.textContent = fmt(timeline.value);
+});
+timeline.addEventListener('change', () => {
+  const t = parseFloat(timeline.value);
+  video1.currentTime = t;
+  video2.currentTime = t;
+  isSeeking = false;
+});
+
+function seekBoth(deltaSeconds) {
+  const t = Math.max(0, video1.currentTime + deltaSeconds);
+  video1.currentTime = t;
+  video2.currentTime = t;
+}
+
+let seekAmount = 10;
+backBtn.onclick = () => seekBoth(-seekAmount);
+fwdBtn.onclick = () => seekBoth(seekAmount);
+
+// ---- Selector de velocidad ----
+document.querySelectorAll('#speedGroup .option-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('#speedGroup .option-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const rate = parseFloat(btn.dataset.speed);
+    video1.playbackRate = rate;
+    video2.playbackRate = rate;
+  };
+});
+
+// ---- Selector de cantidad de salto ----
+document.querySelectorAll('#seekGroup .option-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('#seekGroup .option-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    seekAmount = parseFloat(btn.dataset.seek);
+    backBtn.title = `Retroceder ${seekAmount}s`;
+    fwdBtn.title = `Avanzar ${seekAmount}s`;
+  };
+});
+
+const playPauseBtn = document.getElementById('playPauseBtn');
+playPauseBtn.onclick = () => {
+  if (video1.paused) {
+    video1.play();
+    video2.play();
+    playPauseBtn.textContent = '⏸';
+  } else {
+    video1.pause();
+    video2.pause();
+    playPauseBtn.textContent = '▶';
+  }
+};
+video1.addEventListener('play', () => playPauseBtn.textContent = '⏸');
+video1.addEventListener('pause', () => playPauseBtn.textContent = '▶');
+
+// Flechitas del teclado: izquierda/derecha mueve ambos videos según el salto seleccionado
+document.addEventListener('keydown', (e) => {
+  // Evita interferir si el usuario está escribiendo en el input de URL o en el textarea
+  if (document.activeElement === urlInput || document.activeElement === marksTextarea) return;
+  if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    seekBoth(seekAmount);
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    seekBoth(-seekAmount);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    seekBoth(seekAmount * 3);
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    seekBoth(-seekAmount * 3);
+  }
+});
+
+// ---- Highlights / marcas ----
+function fmtShort(sec) {
+  sec = Math.floor(sec);
+  const m = Math.floor(sec / 60).toString().padStart(2, '0');
+  const s = (sec % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+function clearMarkDots() {
+  timelineTrack.querySelectorAll('.mark-dot').forEach(d => d.remove());
+}
+
+function jumpToMark(tiempoSeg) {
+  video1.currentTime = tiempoSeg;
+  video2.currentTime = tiempoSeg;
+  if (video1.paused) { video1.play(); video2.play(); }
+}
+
+function renderMarks(marcas) {
+  marksList.innerHTML = '';
+  clearMarkDots();
+  if (!Array.isArray(marcas) || marcas.length === 0) {
+    marksMsg.textContent = 'No hay highlights para este partido.';
+    return;
+  }
+  marcas
+    .slice()
+    .sort((a, b) => parseFloat(a.tiempo) - parseFloat(b.tiempo))
+    .forEach(m => {
+      const t = parseFloat(m.tiempo);
+      // Chip en la lista
+      const chip = document.createElement('div');
+      chip.className = 'mark-chip';
+      chip.innerHTML = `<span class="mark-time">${fmtShort(t)}</span><span>${m.nombre}</span>`;
+      chip.onclick = () => jumpToMark(t);
+      marksList.appendChild(chip);
+
+      // Puntito en la timeline (se posiciona bien una vez que conocemos la duración)
+      const dot = document.createElement('div');
+      dot.className = 'mark-dot';
+      dot.title = `${m.nombre} (${fmtShort(t)})`;
+      dot.dataset.time = t;
+      dot.onclick = (e) => { e.stopPropagation(); jumpToMark(t); };
+      timelineTrack.appendChild(dot);
+    });
+  positionMarkDots();
+  marksMsg.textContent = `${marcas.length} highlight(s) cargado(s).`;
+}
+
+function positionMarkDots() {
+  const duration = video1.duration;
+  if (!duration || !isFinite(duration)) return;
+  timelineTrack.querySelectorAll('.mark-dot').forEach(dot => {
+    const t = parseFloat(dot.dataset.time);
+    const pct = Math.min(100, Math.max(0, (t / duration) * 100));
+    dot.style.left = `calc(${pct}% - 1.5px)`;
+  });
+}
+video1.addEventListener('loadedmetadata', positionMarkDots);
+
+function parseAndRenderMarks(jsonText) {
+  try {
+    const data = JSON.parse(jsonText);
+    renderMarks(data);
+    marksTextarea.style.display = 'none';
+  } catch (err) {
+    marksMsg.textContent = 'Ese texto no es un JSON válido.';
+  }
+}
+
+const loadMarksBtn = document.getElementById('loadMarksBtn');
+const pasteMarksBtn = document.getElementById('pasteMarksBtn');
+
+loadMarksBtn.onclick = async () => {
+  if (!currentMatchId) {
+    marksMsg.textContent = 'Primero cargá un partido.';
+    return;
+  }
+  marksMsg.textContent = 'Buscando highlights…';
+  try {
+    const resp = await fetch('https://beelup.com/obtener.marcas.video.v5.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+      body: `id=${encodeURIComponent(currentMatchId)}`
+    });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    renderMarks(data);
+  } catch (err) {
+    marksMsg.textContent = 'No se pudo traer automáticamente (probablemente bloqueado por CORS). Usá "Pegar JSON manualmente".';
+    console.warn('Error cargando highlights:', err);
+  }
+};
+
+pasteMarksBtn.onclick = () => {
+  marksTextarea.style.display = marksTextarea.style.display === 'none' ? 'block' : 'none';
+};
+
+marksTextarea.addEventListener('change', () => {
+  if (marksTextarea.value.trim()) parseAndRenderMarks(marksTextarea.value);
+});
+
+
+</script>
+
+</body>
+</html>

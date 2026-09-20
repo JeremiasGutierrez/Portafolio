@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title> Propiedades — Corbik Propiedades | Inmobiliaria Mar del Plata</title>
+  <meta name="description"
+    content="Encontrá tu próximo hogar en Mar del Plata. Departamentos, chalets, terrenos, PH y dúplex en venta. Corbik Propiedades Propiedades." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <script type="module" crossorigin src="./assets/client-DshaaHEN.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-Cf3xff8G.js">
+  <link rel="stylesheet" crossorigin href="./assets/client-COAT6Oek.css">
+</head>
+
+<body>
+  <div id="client-app">
+    <!-- Navbar -->
+    <nav class="c-navbar" id="c-navbar">
+      <div class="c-navbar-inner">
+        <a href="./client.html" class="c-logo">
+          <div class="c-logo-icon">JP</div>
+          <span class="c-logo-text">Propiedades</span>
+        </a>
+        <div class="c-nav-links">
+          <a href="./index.html" class="c-nav-link" style="color: var(--accent); font-weight: bold;">Ir al Dashboard</a>
+          <a href="#hero" class="c-nav-link active">Inicio</a>
+          <a href="#propiedades" class="c-nav-link">Propiedades</a>
+          <a href="#mapa" class="c-nav-link">Mapa</a>
+          <a href="#contacto" class="c-nav-link">Contacto</a>
+        </div>
+        <div class="c-nav-actions">
+          <button class="c-mobile-menu" id="c-mobile-menu">
+            <i data-lucide="menu"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="c-hero" id="hero">
+      <div class="c-hero-bg"></div>
+      <div class="c-hero-content">
+        <!-- <div class="c-hero-badge">Mar del Plata, Argentina</div> -->
+        <h1 class="c-hero-title">Encontrá tu próximo <span class="c-hero-highlight">hogar</span></h1>
+        <p class="c-hero-subtitle">Departamentos, chalets, terrenos, PH y dúplex en las mejores zonas</p>
+
+        <!-- Search Bar (simple, like REMAX hero) -->
+        <div class="c-search-bar">
+          <div class="c-search-field">
+            <i data-lucide="search"></i>
+            <input type="text" id="c-search-input" placeholder="¿Dónde querés mudarte?" />
+          </div>
+          <select class="c-search-select" id="c-filter-type-hero">
+            <option value="">Tipo de propiedad</option>
+            <option value="departamento">Departamento</option>
+            <option value="chalet">Casa / Chalet</option>
+            <option value="terreno">Terreno</option>
+            <option value="ph">PH</option>
+            <option value="duplex">Dúplex</option>
+          </select>
+          <button class="c-search-btn" id="c-search-btn">
+            <i data-lucide="search"></i>
+            Buscar
+          </button>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="c-hero-stats">
+          <div class="c-hero-stat">
+            <span class="c-hero-stat-value" id="stat-total">0</span>
+            <span class="c-hero-stat-label">Propiedades</span>
+          </div>
+          <div class="c-hero-stat-divider"></div>
+          <div class="c-hero-stat">
+            <span class="c-hero-stat-value" id="stat-zones">0</span>
+            <span class="c-hero-stat-label">Barrios</span>
+          </div>
+          <div class="c-hero-stat-divider"></div>
+          <div class="c-hero-stat">
+            <span class="c-hero-stat-value">Mar del Plata</span>
+            <span class="c-hero-stat-label">Ciudad</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="c-scroll-indicator">
+        <i data-lucide="chevrons-down"></i>
+      </div>
+    </section>
+
+    <!-- Properties Section (same page, with advanced filters) -->
+    <section class="c-properties c-hidden" id="propiedades">
+      <div class="c-container">
+        <!-- Sticky Filter Bar (appears after hero search) -->
+        <div class="c-filter-bar" id="c-filter-bar">
+          <!-- Active search pill -->
+          <div class="c-active-filters" id="c-active-filters"></div>
+
+          <div class="c-filter-bar-row">
+            <div class="c-filter-field">
+              <i data-lucide="map-pin"></i>
+              <select id="c-filter-zone">
+                <option value="">Todos los barrios</option>
+              </select>
+            </div>
+            <div class="c-filter-field">
+              <i data-lucide="home"></i>
+              <select id="c-filter-type">
+                <option value="">Tipo</option>
+                <option value="departamento">Departamento</option>
+                <option value="chalet">Chalet</option>
+                <option value="terreno">Terreno</option>
+                <option value="ph">PH</option>
+                <option value="duplex">Dúplex</option>
+              </select>
+            </div>
+            <div class="c-filter-field">
+              <i data-lucide="dollar-sign"></i>
+              <select id="c-filter-price">
+                <option value="">Precio</option>
+                <option value="0-50000">Hasta USD 50.000</option>
+                <option value="50000-100000">USD 50.000 - 100.000</option>
+                <option value="100000-150000">USD 100.000 - 150.000</option>
+                <option value="150000-200000">USD 150.000 - 200.000</option>
+                <option value="200000-999999999">Más de USD 200.000</option>
+              </select>
+            </div>
+            <div class="c-filter-field">
+              <i data-lucide="door-open"></i>
+              <select id="c-filter-rooms">
+                <option value="">Ambientes</option>
+                <option value="1">1 amb.</option>
+                <option value="2">2 amb.</option>
+                <option value="3">3 amb.</option>
+                <option value="4">4+ amb.</option>
+              </select>
+            </div>
+            <div class="c-filter-field">
+              <i data-lucide="ruler"></i>
+              <select id="c-filter-area">
+                <option value="">Superficie</option>
+                <option value="0-50">Hasta 50 m²</option>
+                <option value="50-100">50 - 100 m²</option>
+                <option value="100-200">100 - 200 m²</option>
+                <option value="200-999999">Más de 200 m²</option>
+              </select>
+            </div>
+            <button class="c-filter-clear" id="c-clear-filters" title="Limpiar filtros">
+              <i data-lucide="x"></i> Limpiar
+            </button>
+          </div>
+        </div>
+
+        <!-- Results Header -->
+        <div class="c-results-header">
+          <div class="c-results-info">
+            <span class="c-results-count" id="c-prop-count"></span>
+          </div>
+          <div class="c-results-controls">
+            <select class="c-sort-select" id="c-sort-select">
+              <option value="newest">Más recientes</option>
+              <option value="price-asc">Menor precio</option>
+              <option value="price-desc">Mayor precio</option>
+              <option value="area-desc">Mayor superficie</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Property Grid -->
+        <div class="c-property-grid" id="c-property-grid">
+          <!-- Dynamic property cards -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="c-map-section c-hidden" id="mapa">
+      <div class="c-container">
+        <h2 class="c-section-title">Mapa de propiedades</h2>
+        <p class="c-section-subtitle">Todas las propiedades disponibles en Mar del Plata</p>
+      </div>
+      <div class="c-map-wrapper">
+        <div id="c-map" class="c-map"></div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="c-contact" id="contacto">
+      <div class="c-container">
+        <div class="c-contact-grid">
+          <div class="c-contact-info">
+            <h2 class="c-section-title" style="text-align:left;">Corbik Propiedades</h2>
+            <p class="c-contact-subtitle">Asesora Inmobiliaria en Mar del Plata</p>
+            <div class="c-contact-items">
+              <div class="c-contact-item">
+                <i data-lucide="phone"></i>
+                <span>223-523-9226</span>
+              </div>
+              <div class="c-contact-item">
+                <i data-lucide="map-pin"></i>
+                <span>Mar del Plata, Buenos Aires, Argentina</span>
+              </div>
+              <div class="c-contact-item">
+                <i data-lucide="clock"></i>
+                <span>Lun - Vie: 9:00 - 18:00</span>
+              </div>
+            </div>
+            <div class="c-social-links">
+              <a href="https://wa.me/5492235126578" class="c-social-link c-social-wa" title="WhatsApp"><i
+                  data-lucide="message-circle"></i> WhatsApp</a>
+              <a href="https://www.instagram.com/cheremics/" class="c-social-link c-social-ig" title="Instagram" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; padding: 12px 24px; border-radius: 50px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg> Instagram</a>
+            </div>
+          </div>
+          <div class="c-contact-form-wrapper">
+            <div class="c-contact-form-card">
+              <h3>Envianos tu consulta</h3>
+              <form id="c-contact-form">
+                <input type="text" class="c-form-input" placeholder="Tu nombre" required />
+                <input type="email" class="c-form-input" placeholder="Tu email" required />
+                <input type="tel" class="c-form-input" placeholder="Tu teléfono" />
+                <textarea class="c-form-textarea" placeholder="¿En qué te podemos ayudar?" rows="4"></textarea>
+                <button type="submit" class="c-btn-primary">
+                  <i data-lucide="send"></i> Enviar consulta
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="c-footer" id="footer">
+      <div class="c-container">
+        <div class="c-footer-inner">
+          <div class="c-footer-logo">
+            <div class="c-logo-icon">JP</div>
+            <span class="c-logo-text">Propiedades</span>
+          </div>
+          <p class="c-footer-copy">© 2026 Corbik Propiedades Propiedades. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+
+
+</body>
+
+</html>

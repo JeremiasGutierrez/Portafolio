@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detalle de Propiedad</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <script type="module" crossorigin src="./assets/property-CxPljFXx.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-Cf3xff8G.js">
+  <link rel="stylesheet" crossorigin href="./assets/property-B_LtP5Tg.css">
+</head>
+<body>
+  <div id="property-app">
+    <!-- Navbar -->
+    <nav class="c-navbar" id="c-navbar">
+      <div class="c-navbar-inner">
+        <a href="./client.html" class="c-logo">
+          <div class="c-logo-icon">JP</div>
+          <span class="c-logo-text">Propiedades</span>
+        </a>
+        <div class="c-nav-links">
+          <a href="./index.html" class="c-nav-link" style="color: var(--accent); font-weight: bold;">Ir al Dashboard</a>
+          <a href="./client.html" class="c-nav-link">Volver a Propiedades</a>
+        </div>
+        <div class="c-nav-actions">
+          <button class="c-mobile-menu" id="c-mobile-menu">
+            <i data-lucide="menu"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="p-container">
+      <div class="p-header" id="p-header">
+        <!-- Injected via JS -->
+      </div>
+      
+      <!-- Gallery Style REMAX (Big left, smaller right) -->
+      <div class="p-gallery" id="p-gallery">
+        <!-- Injected via JS -->
+      </div>
+
+      <div class="p-content-grid">
+        <!-- Left Column: Details -->
+        <div class="p-details">
+          <div class="p-specs-grid" id="p-specs">
+            <!-- Injected via JS -->
+          </div>
+
+          <div class="p-section">
+            <h3 class="p-section-title">Descripción</h3>
+            <div class="p-description" id="p-desc">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <div class="p-section">
+            <h3 class="p-section-title">Ubicación</h3>
+            <div class="p-map-wrapper">
+              <div id="p-map" class="p-map"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Sticky Sidebar -->
+        <div class="p-sidebar">
+          <div class="p-contact-card">
+            <div class="p-price" id="p-price">
+              <!-- Injected via JS -->
+            </div>
+            <div class="p-price-ars" id="p-price-ars"></div>
+            
+            <div class="p-agent-info">
+              <div class="p-agent-avatar"></div>
+              <div class="p-agent-details">
+                <h4>Corbik Propiedades</h4>
+                <p>Asesora Inmobiliaria</p>
+                <small>Reg. 3983</small>
+              </div>
+            </div>
+
+            <div class="p-contact-actions" id="p-contact-actions">
+              <!-- WhatsApp button injected here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="c-footer">
+      <div class="c-container">
+        <div class="c-footer-inner">
+          <div class="c-footer-logo">
+            <div class="c-logo-icon"></div>
+            <span class="c-logo-text">Propiedades</span>
+          </div>
+          <div class="c-footer-contact">
+            <a href="https://wa.me/5492235239226" class="c-footer-wa">
+              <i data-lucide="message-circle"></i> WhatsApp
+            </a>
+            <a href="tel:2235239226" class="c-footer-phone">
+              <i data-lucide="phone"></i> 223-523-9226
+            </a>
+          </div>
+          <p class="c-footer-copy">© 2026 Corbik Propiedades Propiedades. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+</body>
+</html>
