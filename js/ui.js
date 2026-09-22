@@ -178,18 +178,34 @@
     const grid = document.getElementById("projects-grid");
     if (!grid || typeof PROJECTS === "undefined") return;
 
+    // Detect active language (set by i18n.js)
+    const lang = document.documentElement.getAttribute("lang") || "es";
+    const isEn = lang === "en";
+
     const icons = ["📈", "😷", "🔮", "🏡", "📸", "🛡️", "🔥", "💎", "🧠", "⚙️"];
+
+    // Clear existing cards before re-render
+    grid.innerHTML = "";
 
     PROJECTS.forEach((project, i) => {
       const card = document.createElement("article");
       card.className = "project-card";
+      card.setAttribute("role", "listitem");
       card.style.animationDelay = `${i * 0.08}s`;
       card.style.setProperty("--card-accent", hexToRgba(project.accent, 0.3));
       card.style.setProperty("--card-accent-alt", hexToRgba(project.accentAlt, 0.2));
 
-      const iconBg = hexToRgba(project.accent, 0.15);
-      const icon = icons[i % icons.length];
+      const iconBg  = hexToRgba(project.accent, 0.15);
+      const icon    = icons[i % icons.length];
       const hasLink = project.link && project.link !== "#";
+
+      // Pick localized description
+      const desc = isEn
+        ? (project.description_en || project.description_es || "")
+        : (project.description_es || project.description_en || "");
+
+      // Localized link label
+      const linkLabel = isEn ? "View project" : "Ver proyecto";
 
       card.innerHTML = `
         <div class="card-header">
@@ -197,12 +213,12 @@
           <span class="card-year">${project.year}</span>
         </div>
         <h3 class="card-title">${project.title}</h3>
-        <p class="card-desc">${project.description}</p>
+        <p class="card-desc">${desc}</p>
         <div class="card-tags">
           ${project.tags.map((t) => `<span class="badge">${t}</span>`).join("")}
         </div>
         <div class="card-footer">
-          ${hasLink ? `<a href="${project.link}" target="_blank" rel="noopener noreferrer" class="card-link" id="project-link-${project.id}">Ver proyecto <span>&#8599;</span></a>` : ""}
+          ${hasLink ? `<a href="${project.link}" target="_blank" rel="noopener noreferrer" class="card-link" id="project-link-${project.id}">${linkLabel} <span>&#8599;</span></a>` : ""}
           <a href="${project.github}" target="_blank" rel="noopener noreferrer" class="card-link" id="project-github-${project.id}">GitHub <span>&#8599;</span></a>
         </div>
       `;
@@ -213,6 +229,9 @@
     // Re-init tilt after cards are rendered
     initCardTilt();
   }
+
+  // Expose globally so i18n.js can re-render on lang change
+  window.__renderProjects = renderProjects;
 
   // ── Skill logos (inline SVG) ─────────────
   const SKILLS = [
@@ -357,3 +376,4 @@
     });
   });
 })();
+
