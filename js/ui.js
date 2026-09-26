@@ -219,7 +219,7 @@
         </div>
         <div class="card-footer">
           ${hasLink ? `<a href="${project.link}" target="_blank" rel="noopener noreferrer" class="card-link" id="project-link-${project.id}">${linkLabel} <span>&#8599;</span></a>` : ""}
-          <a href="${project.github}" target="_blank" rel="noopener noreferrer" class="card-link" id="project-github-${project.id}">GitHub <span>&#8599;</span></a>
+          ${project.github ? `<a href="${project.github}" target="_blank" rel="noopener noreferrer" class="card-link" id="project-github-${project.id}">GitHub <span>&#8599;</span></a>` : ""}
         </div>
       `;
 

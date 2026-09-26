@@ -258,32 +258,7 @@ section {
   max-width: 760px;
 }
 
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 1rem;
-  border-radius: 100px;
-  /* Contraste mejorado: fondo oscuro semi‑opaco en lugar de blanco translucido */
-  background: rgba(0, 0, 0, 0.30);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(12px);
-  font-size: 0.8rem;
-  font-weight: 600;               /* era 500 — peso mayor mejora legibilidad */
-  color: #fff;
-  margin-bottom: 1.75rem;
-  animation: fadeUp 0.8s var(--ease-spring) 0.1s both;
-}
 
-.hero-badge-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #00e5ff;
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.9);
-  animation: pulseGlow 2s ease-in-out infinite;
-  --glow-color: rgba(0, 200, 255, 0.6);
-}
 
 .hero-title {
   font-family: var(--font-display);
